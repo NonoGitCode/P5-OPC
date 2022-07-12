@@ -5,8 +5,10 @@ let cartItemCollectionQuantity = [];
 let cartItemCollectionPrice = [];
 let cartItemCollectionQuantityExact = [];
 
-//[3] Définition de ma fonction create card qui injectera mon HTML à chaque itération de la boucle par rapport au nombre d'item dans mon panier (cart)
+//[2] Définition de ma fonction create card qui injectera mon HTML à chaque itération de la boucle par rapport au nombre d'item dans mon panier (cart)
 function createCard(product, quantity, color) {
+  console.log(product.price);
+
   const article = document.createElement('article');
   article.setAttribute('class',"cart__item");
   article.setAttribute('data-id',product._id);
@@ -58,6 +60,7 @@ function createCard(product, quantity, color) {
   article.appendChild(divCartItemImg);
   article.appendChild(divCartItemContent);
   cartItems.appendChild(article);
+
   const modifications = {
     suppression : pDelete,
     modifyQuantity : imputQuantity,
@@ -75,7 +78,7 @@ function verifyCart (elem,itemId,itemColor,index){
    localStorage.setItem('panier',JSON.stringify(cart));
    window.location.reload();
 }
-//[4] Définition de ma fonction boucleFor qui supprime les éléments du DOM et du LS au click utilisateur
+//[3] Définition de ma fonction boucleFor qui supprime les éléments du DOM et du LS au click utilisateur
 function boucleForDelete(Array){
   Array.forEach((element)=>
   element.addEventListener('click',function(event){
@@ -93,9 +96,8 @@ function modifyQuantity (element,itemId,itemColor){
     }
     localStorage.setItem('panier',JSON.stringify(cart));
   }
-  console.log('coucou2')
 }
-//[5] Définition de la bouclefor qui ajuste les quantités lorsque l'utilisateur modifie le unput
+//[4] Définition de la bouclefor qui ajuste les quantités lorsque l'utilisateur modifie le unput
 function boucleForQuantity (Array,secondArray){
   Array.forEach((element) =>
     element.addEventListener('change',async function(event){
@@ -105,58 +107,64 @@ function boucleForQuantity (Array,secondArray){
       quantityValue = element.value;
       let totalQuantity = document.getElementById('totalQuantity');
       let text=0
-      //Compteur pour mettre à jour la quantité affichée
-      for (let i = 0; i < cart.length; i++){
-        number = parseInt(cart[i].quantity)
-        text+= number
-        totalQuantity.innerHTML=text;
-      }
       modifyQuantity(element,itemId,itemColor)
-      console.log('coucou1')
       boucleForPrice(secondArray)
+      quantityTot();
+      
     })
   )
 }
 /*****************************************************************************************************************************************/
-//Définition de la fonction asyncForEach (appelée en [2]) qui permet de faire une boucle forEach en asynchrone
-async function asyncForEach(Array,callback){
-  for (let i = 0; i<Array.length; i++){
-    await callback (Array[i],i,Array);
-  }
-};
 
-// [2] Définition de la fonction start qui va fetch tous les élements du LS pour les afficher puis appeler la fonction boucleFor
-const start = async () =>{
-  await asyncForEach(cart, async (elem) => {
-    const res = await fetch("http://localhost:3000/api/products/" + elem.id);
-    const product = await res.json()
-    const modifications = createCard(product, elem.quantity, elem.color,);
-    cartItemCollectionColor.push(modifications.suppression);
-    cartItemCollectionQuantity.push(modifications.modifyQuantity);
-    cartItemCollectionPrice.push(modifications.price)
-    cartItemCollectionQuantityExact.push(modifications.quantityExact);
-  });
-  boucleForPrice(cartItemCollectionPrice);
-  boucleForDelete(cartItemCollectionColor);
-  boucleForQuantity(cartItemCollectionQuantity,cartItemCollectionPrice);
-}
-// [1] Définition de la fonction principale qui appelle la fonction "start"
-async function displayProducts() {
-  start()
-};
+// [1] Définition de la fonction displayProduct qui va fetch tous les élements du LS pour les afficher puis appeler les fonctions boucleFor
+function displayProducts (){
+  if (cart === []){
+    console.log('coucuo')
+    let article = document.getElementById('cart__items');
+    article.innerHTML = 'Votre Panier est vide';
+
+  }else{
+    for (let i = 0; i < cart.length; i++){
+      fetch("http://localhost:3000/api/products/" + cart[i].id)
+        .then((canape) => {
+          return canape.json();
+
+        }).then((product) =>{
+          const modifications = createCard(product, cart[i].quantity, cart[i].color,);
+          cartItemCollectionColor.push(modifications.suppression);
+          cartItemCollectionQuantity.push(modifications.modifyQuantity);
+          cartItemCollectionPrice.push(modifications.price)
+          cartItemCollectionQuantityExact.push(modifications.quantityExact);
+        })
+        .then(()=>{
+          quantityTot();
+          boucleForPrice(cartItemCollectionPrice);
+          boucleForDelete(cartItemCollectionColor);
+          boucleForQuantity(cartItemCollectionQuantity,cartItemCollectionPrice);
+        })
+        .catch(function(error) {
+          console.error(error)
+      });
+    }
+  }
+} 
+
 // Fonction Principale
 displayProducts();
 /*************************************************************************************************/
-//Compteur pour mettre à jour la quantité affichée
+
 let totalQuantity = document.getElementById('totalQuantity');
 let totalPrice = document.getElementById('totalPrice')
-let text=0
-for (let i = 0; i < cart.length; i++){
+
+//Compteur pour mettre à jour la quantité affichée
+function quantityTot (){
+  let text=0
+  for (let i = 0; i < cart.length; i++){
   number = parseInt(cart[i].quantity)
   text+= number
   totalQuantity.innerHTML=text;
+  }
 }
-
 function boucleForPrice (Array){
   let totPrice = 0
   let newCart = JSON.parse(localStorage.getItem('panier'));
@@ -165,5 +173,6 @@ function boucleForPrice (Array){
   }
 totalPrice.innerHTML=totPrice
 }
+
 
 
