@@ -1,4 +1,4 @@
-const cart = JSON.parse(localStorage.getItem('panier')) || []
+const cart = JSON.parse(localStorage.getItem('panier'))||[]
 const cartItems = document.getElementById("cart__items");
 let cartItemCollectionColor = [];
 let cartItemCollectionQuantity = [];
@@ -7,8 +7,6 @@ let cartItemCollectionQuantityExact = [];
 
 //[2] Définition de ma fonction create card qui injectera mon HTML à chaque itération de la boucle par rapport au nombre d'item dans mon panier (cart)
 function createCard(product, quantity, color) {
-  console.log(product.price);
-
   const article = document.createElement('article');
   article.setAttribute('class',"cart__item");
   article.setAttribute('data-id',product._id);
@@ -77,16 +75,17 @@ function verifyCart (elem,itemId,itemColor,index){
   }
    localStorage.setItem('panier',JSON.stringify(cart));
    window.location.reload();
-}
-//[3] Définition de ma fonction boucleFor qui supprime les éléments du DOM et du LS au click utilisateur
+  }
+  //[3] Définition de ma fonction boucleFor qui supprime les éléments du DOM et du LS au click utilisateur
 function boucleForDelete(Array){
   Array.forEach((element)=>
-  element.addEventListener('click',function(event){
-    let article = element.closest('article')
-    let itemId = article.dataset.id;
-    let itemColor = article.dataset.color;
-    cart.forEach((elem,index)=>verifyCart(elem,itemId,itemColor,index))
-  }));
+    element.addEventListener('click',function(event){
+      let article = element.closest('article')
+      let itemId = article.dataset.id;
+      let itemColor = article.dataset.color;
+      cart.forEach((elem,index)=>verifyCart(elem,itemId,itemColor,index))
+    })
+  );
 } 
 // Définition de la fonction modify quantity (appelée en [6]) qui cherche quel input est modifié et qui compare aux éléments du LS pour modifier la quantitée correspondante
 function modifyQuantity (element,itemId,itemColor){
@@ -101,15 +100,20 @@ function modifyQuantity (element,itemId,itemColor){
 function boucleForQuantity (Array,secondArray){
   Array.forEach((element) =>
     element.addEventListener('change',async function(event){
-      let article = element.closest('article')
-      let itemId = article.dataset.id;
-      let itemColor = article.dataset.color;
-      quantityValue = element.value;
-      let totalQuantity = document.getElementById('totalQuantity');
-      let text=0
-      modifyQuantity(element,itemId,itemColor)
-      boucleForPrice(secondArray)
-      quantityTot();
+      if (element.value <= 0){
+        alert ('La quantité ne peux être inférieur à 1')
+        quantity.value = 1
+      }else{
+        let article = element.closest('article')
+        let itemId = article.dataset.id;
+        let itemColor = article.dataset.color;
+        quantityValue = element.value;
+        let totalQuantity = document.getElementById('totalQuantity');
+        let text=0
+        modifyQuantity(element,itemId,itemColor)
+        boucleForPrice(secondArray)
+        quantityTot();
+      }
       
     })
   )
@@ -118,18 +122,16 @@ function boucleForQuantity (Array,secondArray){
 
 // [1] Définition de la fonction displayProduct qui va fetch tous les élements du LS pour les afficher puis appeler les fonctions boucleFor
 function displayProducts (){
-  if (cart === []){
-    console.log('coucuo')
+  if (cart.length === 0){
     let article = document.getElementById('cart__items');
     article.innerHTML = 'Votre Panier est vide';
-
   }else{
     for (let i = 0; i < cart.length; i++){
       fetch("http://localhost:3000/api/products/" + cart[i].id)
-        .then((canape) => {
+        .then((canape)=>{
           return canape.json();
-
-        }).then((product) =>{
+        })
+        .then((product)=>{
           const modifications = createCard(product, cart[i].quantity, cart[i].color,);
           cartItemCollectionColor.push(modifications.suppression);
           cartItemCollectionQuantity.push(modifications.modifyQuantity);
@@ -142,7 +144,7 @@ function displayProducts (){
           boucleForDelete(cartItemCollectionColor);
           boucleForQuantity(cartItemCollectionQuantity,cartItemCollectionPrice);
         })
-        .catch(function(error) {
+        .catch(function(error){
           console.error(error)
       });
     }
@@ -168,11 +170,146 @@ function quantityTot (){
 function boucleForPrice (Array){
   let totPrice = 0
   let newCart = JSON.parse(localStorage.getItem('panier'));
-  for (let i = 0; i < Array.length; i++){
-    totPrice += (parseInt(Array[i])*(newCart[i].quantity));
+    for (let i = 0; i < Array.length; i++){
+      totPrice += (parseInt(Array[i])*(newCart[i].quantity));
+    }
+    totalPrice.innerHTML=totPrice
   }
-totalPrice.innerHTML=totPrice
+
+/*************************************************************************************************/
+function checkInput (){
+  const firstName = document.getElementById('firstName');
+  const firstNameError = document.getElementById('firstNameErrorMsg');
+  const firstNameValue = firstName.value.trim();
+
+  const lastName = document.getElementById('lastName');
+  const lastNameError = document.getElementById('lastNameErrorMsg');
+  const lastNameValue = lastName.value.trim();
+
+  const address = document.getElementById('address');
+  const addressError = document.getElementById('addressErrorMsg');
+  const addressValue = address.value.trim();
+
+  const city = document.getElementById('city');
+  const cityError = document.getElementById('cityErrorMsg');
+  const cityValue = city.value.trim();
+
+  const mail = document.getElementById('email');
+  const mailError = document.getElementById('emailErrorMsg');
+  const mailValue = mail.value.trim();
+  let check = true;
+
+  const firstNameRegex = /^[A-Za-z\s]{3,50}$/;
+  const lastNameRegex = /^[A-Za-z\s]{3,50}$/;
+  const addressRegex = /^[A-Za-z0-9\s]{5,50}$/;
+  const cityRegex = /^[A-Za-z\s]{3,50}$/;
+  const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+  if (firstNameValue.match(firstNameRegex)){
+    firstNameError.innerHTML = "";
+  }else{
+    check = false;
+    firstNameError.innerHTML = "Veuillez saisir un prénom valide";
+  }
+
+  if (lastNameValue.match(lastNameRegex)){
+    lastNameError.innerHTML = "";
+  }else{
+    check = false;
+    lastNameError.innerHTML = "Veuillez saisir un nom de famille valide";
+  }
+
+  if (addressValue.match(addressRegex)){
+    addressError.innerHTML = "";
+  }else{
+    check = false;
+    addressError.innerHTML = "Merci de saisir un une addresse valide";
+  }
+
+  if (cityValue.match(cityRegex)){
+    cityError.innerHTML = "";
+  }else{
+    check = false;
+    cityError.innerHTML = "Merci de saisir un nom ville valide"
+  }
+
+  if (mailValue.match(mailRegex)){
+    mailError.innerHTML = "";
+  }else{
+    check = false;
+    mailError.innerHTML = "Merci de saisir une addresse mail valide"
+  }
+  return check
+};
+
+//Définition de la fonction postAPI qui va envoyer l'objet "body" contenant les informations de l'utilisateur  => addresse + id des produits commandés et nous retourne l'id de la commande 
+function postApi(body){
+  fetch("http://localhost:3000/api/products/order",{
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      "Content-Type" : "application/json",
+    }
+  })
+  .then(response => response.json())
+  .then(response=> {
+    let cart = []
+    localStorage.setItem('panier',JSON.stringify(cart))
+    window.location.href = `./confirmation.html?orderId=${response.orderId}`
+  })
+  .catch(function(error){
+    console.error(error)
+  });
 }
 
+//Définition de la fonction requestBody qui va récuperer les valeurs des champs du formulaire pour mettre les informations dans un objet qui sera transmit à l'API
+function requestBody(){
 
+  const firstNameInput = document.querySelector('#firstName')
+  const firstName = firstNameInput.value
+
+  const lastNameInput = document.querySelector('#lastName')
+  const lastName = lastNameInput.value
+
+  const addressInput = document.querySelector('#address')
+  const address = addressInput.value
+
+  const cityInput = document.querySelector('#city')
+  const city = cityInput.value
+
+  const emailInput = document.querySelector('#email')
+  const email = emailInput.value
+
+  let idProducts  = [];
+  for (let i = 0; i < cart.length; i++) {
+  
+    idProducts.push(cart[i].id)
+  }
+  const body = { 
+    contact: {
+    firstName: firstName,
+    lastName: lastName,
+    address: address,
+    city: city,
+    email: email
+  },
+  products : idProducts,
+  }
+  return body
+};
+
+//Définition de la fonction submitForm qui permet de récuperer les informations entrées par l'utilisateur dans le formulaire, va vérifier si celles-ci sont correctes et va transmettre à l'API puis récuperer le numéro de commande dans la réponse de l'API 
+function submitForm (e){
+  e.preventDefault();
+  if (cart.length === 0){
+    alert('Vous ne pouvez passer une commande avec un panier vide')
+  }else{
+    if(checkInput()){
+      postApi(requestBody())
+    };
+  }
+};
+//Lorsque l'utilisateur clique sur le bouton commander, on appelle la fonction submitForm
+const submitBtn = document.getElementById('order')
+submitBtn.addEventListener("click", (e) => submitForm(e))
 

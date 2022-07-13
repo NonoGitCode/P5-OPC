@@ -108,21 +108,21 @@ addToCart.addEventListener('click',function () {
             if (element.id == canape.id && element.color == canape.color){
               element.quantity += canape.quantity
               localStorage.setItem('panier',JSON.stringify(panierStorage));
-             // console.log('canape meme couleur dans le panier')
+             alert('Article ajouté au panier');
             }
           })
         
         }else{
           panierStorage.push(canape);
           localStorage.setItem('panier',JSON.stringify(panierStorage));
-          // console.log('meme id pas meme couleur')
+          alert('Article ajouté au panier');
         }
     
 
       }else{
       panierStorage.push(canape);
       localStorage.setItem('panier',JSON.stringify(panierStorage));
-      // console.log('pas le meme id')
+      alert('Article ajouté au panier');
       }
 
     }else{
