@@ -4,8 +4,13 @@ let cartItemCollectionColor = [];
 let cartItemCollectionQuantity = [];
 let cartItemCollectionPrice = [];
 let cartItemCollectionQuantityExact = [];
+const firstNameRegex = /^[A-Za-z\s]{3,50}$/;
+const lastNameRegex = /^[A-Za-z\s]{3,50}$/;
+const addressRegex = /^[A-Za-z0-9'\s]{5,50}$/;
+const cityRegex = /^[A-Za-z'\s]{3,50}$/;
+const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
 
-//[2] Définition de ma fonction create card qui injectera mon HTML à chaque itération de la boucle par rapport au nombre d'item dans mon panier (cart)
+// Définition de ma fonction createCard qui injectera mon HTML à chaque itération de la boucle par rapport au nombre d'item dans mon panier (cart)
 function createCard(product, quantity, color) {
   const article = document.createElement('article');
   article.setAttribute('class',"cart__item");
@@ -59,6 +64,7 @@ function createCard(product, quantity, color) {
   article.appendChild(divCartItemContent);
   cartItems.appendChild(article);
 
+  //Récuperation de données dans un objet pour réutiliser dans boucleForPrice et boucleForQuantity
   const modifications = {
     suppression : pDelete,
     modifyQuantity : imputQuantity,
@@ -68,7 +74,7 @@ function createCard(product, quantity, color) {
   return modifications;
 };
 /*****************************************************************************************************************************************/
-// Définition de la fonction verifyCart (appelée en [5]) qui permet de comparer l'id et la couleur à tous mes items du panier pour supprimer le bon élément, puis update mon panier.
+// Définition de la fonction verifyCart qui permet de comparer l'id et la couleur à tous mes items du panier pour supprimer le bon élément, puis update mon panier.
 function verifyCart (elem,itemId,itemColor,index){
   if (elem.id === itemId && elem.color === itemColor){
     cart.splice(index,1);
@@ -76,7 +82,7 @@ function verifyCart (elem,itemId,itemColor,index){
    localStorage.setItem('panier',JSON.stringify(cart));
    window.location.reload();
   }
-  //[3] Définition de ma fonction boucleFor qui supprime les éléments du DOM et du LS au click utilisateur
+  // Définition de ma fonction boucleForDelete qui supprime les éléments du DOM et du LS au click utilisateur
 function boucleForDelete(Array){
   Array.forEach((element)=>
     element.addEventListener('click',function(event){
@@ -87,7 +93,7 @@ function boucleForDelete(Array){
     })
   );
 } 
-// Définition de la fonction modify quantity (appelée en [6]) qui cherche quel input est modifié et qui compare aux éléments du LS pour modifier la quantitée correspondante
+// Définition de la fonction modifyQuantity qui cherche quel input est modifié et qui compare aux éléments du LS pour modifier la quantitée correspondante
 function modifyQuantity (element,itemId,itemColor){
   for (let i = 0; i<cart.length; i++){
     if (cart[i].id === itemId && cart[i].color === itemColor){
@@ -96,7 +102,7 @@ function modifyQuantity (element,itemId,itemColor){
     localStorage.setItem('panier',JSON.stringify(cart));
   }
 }
-//[4] Définition de la bouclefor qui ajuste les quantités lorsque l'utilisateur modifie le unput
+// Définition de la boucleforQuantity qui ajuste les quantités lorsque l'utilisateur modifie le unput
 function boucleForQuantity (Array,secondArray){
   Array.forEach((element) =>
     element.addEventListener('change',async function(event){
@@ -120,7 +126,7 @@ function boucleForQuantity (Array,secondArray){
 }
 /*****************************************************************************************************************************************/
 
-// [1] Définition de la fonction displayProduct qui va fetch tous les élements du LS pour les afficher puis appeler les fonctions boucleFor
+// Définition de la fonction displayProduct qui va fetch tous les élements du LS pour les afficher puis appeler les fonctions boucleFor
 function displayProducts (){
   if (cart.length === 0){
     let article = document.getElementById('cart__items');
@@ -167,6 +173,7 @@ function quantityTot (){
   totalQuantity.innerHTML=text;
   }
 }
+//Compteur pour mettre à jour le prix affiché
 function boucleForPrice (Array){
   let totPrice = 0
   let newCart = JSON.parse(localStorage.getItem('panier'));
@@ -177,6 +184,7 @@ function boucleForPrice (Array){
   }
 
 /*************************************************************************************************/
+// Fonction checkInput qui récupère et vérifie si les champs entrés par l'utilisateur valident les regex
 function checkInput (){
   const firstName = document.getElementById('firstName');
   const firstNameError = document.getElementById('firstNameErrorMsg');
@@ -199,12 +207,6 @@ function checkInput (){
   const mailValue = mail.value.trim();
   let check = true;
 
-  const firstNameRegex = /^[A-Za-z\s]{3,50}$/;
-  const lastNameRegex = /^[A-Za-z\s]{3,50}$/;
-  const addressRegex = /^[A-Za-z0-9\s]{5,50}$/;
-  const cityRegex = /^[A-Za-z\s]{3,50}$/;
-  const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
-
   if (firstNameValue.match(firstNameRegex)){
     firstNameError.innerHTML = "";
   }else{
@@ -223,7 +225,7 @@ function checkInput (){
     addressError.innerHTML = "";
   }else{
     check = false;
-    addressError.innerHTML = "Veuillez saisir un une addresse valide";
+    addressError.innerHTML = "Veuillez saisir un une adresse valide";
   }
 
   if (cityValue.match(cityRegex)){
@@ -237,7 +239,7 @@ function checkInput (){
     mailError.innerHTML = "";
   }else{
     check = false;
-    mailError.innerHTML = "Veuillez saisir une addresse mail valide"
+    mailError.innerHTML = "Veuillez saisir une adresse mail valide"
   }
   return check
 };
@@ -280,13 +282,14 @@ function requestBody(){
   const emailInput = document.querySelector('#email')
   const email = emailInput.value
 
+  //Boucle pour mettre les id des produits selectionnés dans le panier
   let idProducts  = [];
   for (let i = 0; i < cart.length; i++){
     for (let number = cart[i].quantity; number>0; number--){
       idProducts.push(cart[i].id)
     }
   }
-
+  
   const body = { 
     contact: {
     firstName: firstName,
