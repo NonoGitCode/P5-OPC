@@ -2,7 +2,7 @@
 const idProduct = new URL(window.location.href).searchParams.get("id");
 
 //On contacte l'API en précisant qu'on est dans le context Id
-fetch("http://localhost:3000/api/products/" + idProduct) 
+fetch("http://localhost:3000/api/products/" + idProduct)
   .then(function (response) {
     return response.json();
   })

@@ -223,21 +223,21 @@ function checkInput (){
     addressError.innerHTML = "";
   }else{
     check = false;
-    addressError.innerHTML = "Merci de saisir un une addresse valide";
+    addressError.innerHTML = "Veuillez saisir un une addresse valide";
   }
 
   if (cityValue.match(cityRegex)){
     cityError.innerHTML = "";
   }else{
     check = false;
-    cityError.innerHTML = "Merci de saisir un nom ville valide"
+    cityError.innerHTML = "Veuillez saisir un nom ville valide"
   }
 
   if (mailValue.match(mailRegex)){
     mailError.innerHTML = "";
   }else{
     check = false;
-    mailError.innerHTML = "Merci de saisir une addresse mail valide"
+    mailError.innerHTML = "Veuillez saisir une addresse mail valide"
   }
   return check
 };
@@ -281,10 +281,12 @@ function requestBody(){
   const email = emailInput.value
 
   let idProducts  = [];
-  for (let i = 0; i < cart.length; i++) {
-  
-    idProducts.push(cart[i].id)
+  for (let i = 0; i < cart.length; i++){
+    for (let number = cart[i].quantity; number>0; number--){
+      idProducts.push(cart[i].id)
+    }
   }
+
   const body = { 
     contact: {
     firstName: firstName,
