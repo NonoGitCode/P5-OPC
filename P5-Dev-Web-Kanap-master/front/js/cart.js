@@ -1,13 +1,15 @@
 const cart = JSON.parse(localStorage.getItem('panier'))||[]
 const cartItems = document.getElementById("cart__items");
+
 let cartItemCollectionColor = [];
 let cartItemCollectionQuantity = [];
 let cartItemCollectionPrice = [];
 let cartItemCollectionQuantityExact = [];
-const firstNameRegex = /^[A-Za-z\s]{3,50}$/;
-const lastNameRegex = /^[A-Za-z\s]{3,50}$/;
-const addressRegex = /^[A-Za-z0-9'\s]{5,50}$/;
-const cityRegex = /^[A-Za-z'\s]{3,50}$/;
+
+const firstNameRegex = /^[A-Za-zâêîôûäëïöüÄËÏÖÜÂÊÎÔÛéèà\s]{3,50}$/;
+const lastNameRegex = /^[A-Za-zâêîôûäëïöüÄËÏÖÜÂÊÎÔÛéèà\s]{3,50}$/;
+const addressRegex = /^[A-Za-z0-9'âêîôûäëïöüÄËÏÖÜÂÊÎÔÛéèà\s]{5,50}$/;
+const cityRegex = /^[A-Za-z'âêîôûäëïöüÄËÏÖÜÂÊÎÔÛéèà\s]{3,50}$/;
 const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
 
 // Définition de ma fonction createCard qui injectera mon HTML à chaque itération de la boucle par rapport au nombre d'item dans mon panier (cart)
@@ -186,6 +188,7 @@ function boucleForPrice (Array){
 /*************************************************************************************************/
 // Fonction checkInput qui récupère et vérifie si les champs entrés par l'utilisateur valident les regex
 function checkInput (){
+
   const firstName = document.getElementById('firstName');
   const firstNameError = document.getElementById('firstNameErrorMsg');
   const firstNameValue = firstName.value.trim();
@@ -254,7 +257,7 @@ function postApi(body){
     }
   })
   .then(response => response.json())
-  .then(response=> {
+  .then(response => {
     let cart = []
     localStorage.setItem('panier',JSON.stringify(cart))
     window.location.href = `./confirmation.html?orderId=${response.orderId}`

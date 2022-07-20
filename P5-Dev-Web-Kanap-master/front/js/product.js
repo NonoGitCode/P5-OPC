@@ -7,7 +7,7 @@ fetch("http://localhost:3000/api/products/" + idProduct)
     return response.json();
   })
 
-  //On Crée donc notre fonction canape
+
   .then((canape) => {
 
     //On récupère dans des constantes tous les éléments HTML qu'on va modifier 
@@ -79,7 +79,8 @@ let addToCart = document.getElementById("addToCart");
 addToCart.addEventListener('click',function () {
 
   let name = document.getElementById('title').textContent;
-
+  
+  //On définit le format de l'objet qu'on souhaite avoir dans le panier
   let canape = {
     id : idProduct,
     color: colors.value,
@@ -91,47 +92,34 @@ addToCart.addEventListener('click',function () {
 
   //Condition, si la quantité est comprise entre 1 et 100 on ajoute le produit au panier ou alors on incrémente la quantité
   if (quantity.value >= 1 && quantity.value <= 100){
-
-    //On définit le format de l'objet qu'on souhaite avoir dans le panier
-    
-
     //si il y'a déjà un panier dans le local storage
     if(localStorage.getItem('panier')){
       panierStorage = JSON.parse(localStorage.getItem('panier'));
-      
       if (findItem(panierStorage,canape.id)){
-
         if (findColor(panierStorage,canape.color,canape.id)){
-
           panierStorage.forEach(element => {
-
             if (element.id == canape.id && element.color == canape.color){
               element.quantity += canape.quantity
               localStorage.setItem('panier',JSON.stringify(panierStorage));
              alert('Article ajouté au panier');
             }
           })
-        
         }else{
           panierStorage.push(canape);
           localStorage.setItem('panier',JSON.stringify(panierStorage));
           alert('Article ajouté au panier');
         }
-    
-
       }else{
       panierStorage.push(canape);
       localStorage.setItem('panier',JSON.stringify(panierStorage));
-      alert('Article ajouté au panier');
-      }
-
-    }else{
+    }
+  }else{
     let panierStorage = [];
     panierStorage.push(canape);
     localStorage.setItem('panier',JSON.stringify(panierStorage));
+    alert('Article ajouté au panier');
     // console.log('panier vide')
     }
-    
   }else{
     alert("Veuillez choisir un nombre d'article compris entre 1 et 100")
   }
